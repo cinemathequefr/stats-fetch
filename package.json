@@ -1,0 +1,22 @@
+{
+  "name": "stats-fetch",
+  "version": "1.0.0",
+  "description": "Stats: fetches the data over HTTP and processes them",
+  "main": "seances.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "autodetect-decoder-stream": "^1.0.0",
+    "bluebird": "^3.5.0",
+    "csvtojson": "^1.1.6",
+    "encoding": "^0.1.12",
+    "iconv-lite": "^0.4.17",
+    "lodash": "^4.17.4",
+    "moment": "^2.18.1",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.1"
+  }
+}
