@@ -7,6 +7,7 @@ module.exports = (csv => {
       delimiter: ";",
       toArrayString: true,
       noheader: false,
+      checkType: true, // Type inference
       headers: ["idCanal", "idManif", "titre", "idSeance", "date", "idSalle", "montant", "tarif"]
     })
     .fromString(csv)

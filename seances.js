@@ -1,4 +1,4 @@
-// Update-seances : mise à jour des données de séances
+// Mise à jour des données de séances
 
 var moment = require("moment");
 var fs = require("fs");
@@ -73,7 +73,6 @@ new Promise((resolve, reject) => {
   console.log(reason);
 });
 
-
 /**
  * mergeSeances
  * Fusionne un tableau de séances (initial) avec un tableau de séances supplémentaires (ajouts).
@@ -102,13 +101,12 @@ function splitSeances (seances) {
  * - La date la plus récente pour laquelle des données sont déjà présentes dans seances.json (mais au plus tard hier)
  * - Si on ne peut pas la déterminer, la date de début historique des données
  * @return {string} Date au format YYYY-MM-DD
- * @todo : Passer les données des séances passées (initialSeances) dans la résolution de la promesse (et cette fonction sera donc à renommer)
+ * @todo : Séparer en deux promesses distinctes et consécutives : lecture de seances.json, puis détermination de la date de début de requête
  */
 function calcDateFrom () {
   return new Promise((resolve, reject) => {
     var reason = "La date de début de mise à jour n'a pas pu être déterminée. Vérifier le fichier de données ou utiliser le flag --force";
     fs.readFile("./data/seances.json", "utf8", (err, data) => {
-      var date;
 
       initialSeances = JSON.parse(data); // IMPORTANT : initialSeances est global et servira pour la fusion avec les séances passées ajoutées (la promesse aura été résolue) TODO: plutôt passer cette valeur dans la résolution de la promesse
 
@@ -116,19 +114,17 @@ function calcDateFrom () {
         reject(reason);
       } else {
         try {
-          date = moment.min([ // Par sécurité, on empêche la date de dépasser la date d'hier
-            yesterday(),
-            moment(moment.max(_(JSON.parse(data)).map(d => moment(d.date)).value())).add(1, "days"), // Le jour qui suit le dernier jour de données disponibles
-          ]);
-
-          if (date.isSame(yesterday(), "day")) { // => Pas de mise à jour nécessaire pour les données passées
+          var dateLastAvailable =  moment(moment.max(_(JSON.parse(data)).map(d => moment(d.date)).value()));
+          if (dateLastAvailable.isSame(yesterday(), "day")) {
             resolve(null);
+          } else {
+            resolve(dateLastAvailable.add(1, "days"));
           }
         } catch(e) {
           reject(reason);
         }
       }
-      resolve(date);
+      resolve(dateLastAvailable);
     });
   });
 }
