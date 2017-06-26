@@ -3,12 +3,9 @@
 var moment = require("moment");
 var fs = require("fs");
 var _ = require("lodash");
-var config = require("./modules/config.js")
-var connect = require("./modules/connect.js");
-var query = require("./modules/query.js");
-var toJson = require("./modules/tojson.js");
+var config = require("./modules/config.js");
+var remote = require("./modules/remote.js");
 var aggregateTicketsToSeances = require("./modules/aggregate-tickets-to-seances.js");
-var aggregateSeances = require("./modules/aggregate-seances.js");
 
 var mode = _.indexOf(["--past", "--future", "--all"], process.argv[2]) > -1 ? process.argv[2] : "--all";
 var force = process.argv[3] === "--force"; // Pour les séances passées, force une requête sur la totalité des données
@@ -37,9 +34,9 @@ new Promise((resolve, reject) => {
 })
 .then(dateFrom => {
   dateTo = mode === "--past" ? yesterday() : currentDateTime.clone().add(config.lookAheadDays, "days");
-  return connect(config.connectUrl, config.login, config.password)
+  return remote.connect(config.connectUrl, config.login, config.password)
   .then(connectId => {
-    return query(
+    return remote.query(
       connectId,
       _.template(config.requestTemplates.tickets)({
         dateFrom: dateFrom.format("YYYY-MM-DD"),
@@ -48,7 +45,7 @@ new Promise((resolve, reject) => {
     );
   });
 })
-.then(tickets => toJson(tickets)) // Convertit la réponse csv en json
+.then(tickets => remote.toJson(tickets)) // Convertit la réponse csv en json
 .then(tickets => {
   var seances = aggregateTicketsToSeances(tickets);
   var split = splitSeances(seances);
@@ -72,6 +69,7 @@ new Promise((resolve, reject) => {
 .catch(reason => {
   console.log(reason);
 });
+
 
 /**
  * mergeSeances
@@ -104,6 +102,7 @@ function splitSeances (seances) {
  * @todo : Séparer en deux promesses distinctes et consécutives : lecture de seances.json, puis détermination de la date de début de requête
  */
 function calcDateFrom () {
+  var dateLastAvailable;
   return new Promise((resolve, reject) => {
     var reason = "La date de début de mise à jour n'a pas pu être déterminée. Vérifier le fichier de données ou utiliser le flag --force";
     fs.readFile("./data/seances.json", "utf8", (err, data) => {
@@ -114,7 +113,7 @@ function calcDateFrom () {
         reject(reason);
       } else {
         try {
-          var dateLastAvailable =  moment(moment.max(_(JSON.parse(data)).map(d => moment(d.date)).value()));
+          dateLastAvailable =  moment(moment.max(_(JSON.parse(data)).map(d => moment(d.date)).value()));
           if (dateLastAvailable.isSame(yesterday(), "day")) {
             resolve(null);
           } else {
