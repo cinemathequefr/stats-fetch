@@ -107,7 +107,13 @@ function calcDateFrom () {
     var reason = "La date de début de mise à jour n'a pas pu être déterminée. Vérifier le fichier de données ou utiliser le flag --force";
     fs.readFile("./data/seances.json", "utf8", (err, data) => {
 
-      initialSeances = JSON.parse(data); // IMPORTANT : initialSeances est global et servira pour la fusion avec les séances passées ajoutées (la promesse aura été résolue) TODO: plutôt passer cette valeur dans la résolution de la promesse
+      try {
+        initialSeances = JSON.parse(data); // IMPORTANT : initialSeances est global et servira pour la fusion avec les séances passées ajoutées (la promesse aura été résolue) TODO: plutôt passer cette valeur dans la résolution de la promesse
+      } catch(e) {
+        initiales = [];
+      }
+
+      // initialSeances = JSON.parse(data); // IMPORTANT : initialSeances est global et servira pour la fusion avec les séances passées ajoutées (la promesse aura été résolue) TODO: plutôt passer cette valeur dans la résolution de la promesse
 
       if (err) {
         reject(reason);
