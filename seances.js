@@ -110,10 +110,8 @@ function calcDateFrom () {
       try {
         initialSeances = JSON.parse(data); // IMPORTANT : initialSeances est global et servira pour la fusion avec les séances passées ajoutées (la promesse aura été résolue) TODO: plutôt passer cette valeur dans la résolution de la promesse
       } catch(e) {
-        initiales = [];
+        initialSeances = [];
       }
-
-      // initialSeances = JSON.parse(data); // IMPORTANT : initialSeances est global et servira pour la fusion avec les séances passées ajoutées (la promesse aura été résolue) TODO: plutôt passer cette valeur dans la résolution de la promesse
 
       if (err) {
         reject(reason);
@@ -126,6 +124,7 @@ function calcDateFrom () {
             resolve(dateLastAvailable.add(1, "days"));
           }
         } catch(e) {
+          console.log(e);
           reject(reason);
         }
       }
