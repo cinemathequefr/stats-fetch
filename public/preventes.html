@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
+    <style>
+
+    body {
+      color: #222;
+      font-family: Source Sans Pro;
+    }
+
+    table {
+      width: 75%;
+      font-family: Source Sans Pro;
+      font-size: 0.938rem;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background-color: #eee;
+    }
+
+    th, td {
+      border: solid 1px #333; padding: 2px 4px;
+    }
+
+    .container {
+      width: 1100px; margin: 0 auto; padding: 48px 0;
+    }
+
+    .right { text-align: right;}
+    .center { text-align: center;}
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-table-headers/0.1.19/js/jquery.stickytableheaders.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
+    <script>WebFont.load({google:{families:["Source+Sans+Pro:400,700"]}});</script>
+    <title>La Cinémathèque française - Visualisation des préventes</title>
+  </head>
+  <body>
+
+    <div class="container">
+      <h1>Visualisation des préventes</h1>
+      <table>
+        <thead>
+          <tr>
+            <th colspan="2">Date</th>
+            <th>Titre</th>
+            <th>Billets</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <script>
+
+moment.locale("fr", { monthsShort: "jan_fév_mar_avr_mai_juin_juil_aoû_sep_oct_nov_déc".split("_"), weekdaysShort: "Dim_Lun_Mar_Mer_Jeu_Ven_Sam".split("_") });
+
+$("table").stickyTableHeaders({cacheHeaderHeight: true});
+
+var temp = _.template([
+  "<% _.forEach(data, function (item) { %>",
+  "<tr>",
+  "<td class='center'><%= moment(item.date).format('ddd D MMM HH:mm') %></td>",
+  "<td class='right'>-<%= daysFromNow(item.date) %></td>",
+  "<td><%= item.titre %></td>",
+  "<td class='right'><%= item.tickets.compte %></td>",
+  "</tr>",
+  "<% }); %>"
+].join(""));
+
+
+$.getJSON("../data/future.json", function (data) {
+  $(".container tbody").html(temp({ data: _(data).orderBy("tickets.compte").reverse().value() }));
+});
+
+
+function daysFromNow (d) {
+  return -moment().diff(d, "days");
+}
+
+
+
+    </script>
+  </body>
+</html>
