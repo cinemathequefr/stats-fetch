@@ -13,6 +13,9 @@ var dateTo;
 var currentDateTime = moment().startOf("day"); // On capture la date courante (pour utiliser la même valeur)
 var initialSeances; // Données initiales séances passées // TODO : pas de global, passer cette valeur à la résolution de la promesse de getDate (fonction à renommer)
 
+
+console.log(moment().format());
+
 new Promise((resolve, reject) => {
   if (mode === "--past" || mode === "--all") {
     if (force) {
@@ -59,7 +62,7 @@ new Promise((resolve, reject) => {
   }
 
   if (mode === "--all" || mode === "--future") {
-    if (split[1].length > 0) {
+    if (split[1].length > 0) { // NB: les données des séances futures sont intégralement réécrites à chaque requête
       fs.writeFile("./data/future.json", JSON.stringify(split[1], null, 2), "utf8", (err) => { console.log("Séances à venir : " + split[1].length + " séances."); });
     } else {
       console.log("Séances à venir : aucune séance.")

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hello there!</title>
+  </head>
+  <body>
+
+    <h1><%= moment(data[0].date).format("DD") %></h1>
+    <ul>
+      <% _.forEach(data, function (d) { %>
+        <li>
+          <%= d.titre %>
+          <%= d.date %>
+          <strong><%= d.tickets.compte %></strong>
+          <ul>
+          <% _.forEach(d.tickets.tarifCat2, function (v) { %>
+          <li>
+            <%= v[0] %> : <%= v[1] %>
+          </li>
+          <% }); %>
+        </ul>
+        </li>
+      <% }); %>
+    </ul>
+
+  </body>
+</html>
